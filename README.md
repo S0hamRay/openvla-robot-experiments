@@ -55,7 +55,3 @@ This repository contains experiments and evaluations for OpenVLA (Open Vision La
 - Camera sensors are implemented for vision-based tasks
 - Evaluation results are stored in the `submissions/` directory
 - Model checkpoints are managed in the `OpenVLA_Model/` directory
-
-## License
-
-[Add your license information here] 
