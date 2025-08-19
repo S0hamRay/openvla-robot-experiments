@@ -2,6 +2,8 @@
 
 This repository contains experiments and evaluations for OpenVLA (Open Vision Language Action) models in robotic environments using MuJoCo simulation.
 
+NOTE: This project is still in progress, updates may have minor bugs while I work on integrating the autoencoders, simulation and model
+
 ## Project Structure
 
 - `openvla-main/` - Main OpenVLA implementation and experiments
