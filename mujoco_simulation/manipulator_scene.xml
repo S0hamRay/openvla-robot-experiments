@@ -1,0 +1,83 @@
+<mujoco model="manipulator_scene">
+  <!-- Basic compiler/options -->
+  <compiler angle="degree" coordinate="local" inertiafromgeom="true" />
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="RK4" />
+
+  <default>
+    <joint damping="1" armature="0.01" limited="true" />
+    <geom type="capsule" rgba="0.55 0.6 0.7 1" friction="0.8 0.1 0.1" condim="4" density="1200" />
+  </default>
+
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512"
+             rgb1="0.9 0.9 0.9" rgb2="0.8 0.8 0.8" />
+    <material name="floor_mat" texture="grid" texrepeat="8 8" reflectance="0.1" />
+    <material name="arm_mat" rgba="0.35 0.45 0.85 1" />
+    <material name="block_mat" rgba="0.85 0.25 0.25 1" />
+  </asset>
+
+  <worldbody>
+    <!-- Lighting and ground -->
+    <light name="sun" pos="1 -1 2" dir="-1 1 -2" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3" />
+    <geom name="floor" type="plane" size="5 5 0.1" material="floor_mat" rgba="1 1 1 1" />
+
+    <!-- Simple 3-DOF planar manipulator mounted at origin -->
+    <body name="base" pos="0 0 0.05">
+      <!-- Decorative base pillar -->
+      <geom name="base_pillar" type="cylinder" size="0.05 0.05" rgba="0.4 0.4 0.4 1" />
+
+      <!-- Joint 1: base yaw around +z -->
+      <joint name="joint_base_yaw" type="hinge" axis="0 0 1" range="-180 180" />
+
+      <!-- Link 1 -->
+      <body name="link1" pos="0 0 0.10">
+        <joint name="joint_shoulder" type="hinge" axis="1 0 0" range="-90 90" />
+        <!-- Capsule along +y local axis -->
+        <geom name="link1_geom" material="arm_mat" fromto="0 0 0  0 0.20 0" size="0.03" />
+
+        <!-- Link 2 -->
+        <body name="link2" pos="0 0.20 0">
+          <joint name="joint_elbow" type="hinge" axis="1 0 0" range="-120 120" />
+          <geom name="link2_geom" material="arm_mat" fromto="0 0 0  0 0.20 0" size="0.025" />
+
+          <!-- Link 3 / wrist -->
+          <body name="link3" pos="0 0.20 0">
+            <joint name="joint_wrist" type="hinge" axis="0 0 1" range="-180 180" />
+            <geom name="link3_geom" material="arm_mat" fromto="0 0 0  0 0.15 0" size="0.02" />
+
+            <!-- End-effector site -->
+            <site name="ee_site" pos="0 0.15 0" size="0.01" rgba="0.1 0.9 0.1 1" />
+
+            <!-- Onboard camera mounted near the wrist, looking along +y toward the block -->
+            <!-- zaxis defines the camera's forward (optical) axis; xyaxes completes an orthonormal frame -->
+            <camera name="ee_cam" pos="0 0.14 0.05" zaxis="0 1 0" fovy="60"/>
+
+          </body>
+
+        </body>
+      </body>
+    </body>
+
+    <!-- Target block on the table in front of the arm (along +y) -->
+    <body name="block_body" pos="0 0.45 0.03">
+      <geom name="block" type="box" size="0.03 0.03 0.03" material="block_mat" />
+    </body>
+    
+    <!-- Global camera positioned above the scene looking down -->
+    <camera name="global_cam" pos="0 0.2 1.5" zaxis="0 0 -1" fovy="45" />
+  </worldbody>
+
+  <!-- Simple motors for each joint (range-limited by the joint ranges) -->
+  <actuator>
+    <motor name="act_base" joint="joint_base_yaw" gear="100" ctrlrange="-1 1" />
+    <motor name="act_shoulder" joint="joint_shoulder" gear="100" ctrlrange="-1 1" />
+    <motor name="act_elbow" joint="joint_elbow" gear="100" ctrlrange="-1 1" />
+    <motor name="act_wrist" joint="joint_wrist" gear="50" ctrlrange="-1 1" />
+  </actuator>
+
+  <!-- Optional: a convenient named keyframe for a neutral pose -->
+  <keyframe>
+    <key name="home" qpos="0 0 0 0" />
+  </keyframe>
+</mujoco>
+
